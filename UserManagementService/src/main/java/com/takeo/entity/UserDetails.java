@@ -2,35 +2,49 @@ package com.takeo.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Date;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "user_service")
-public class UserService {
+@Table(name = "user_details")
+public class UserDetails {
     @Id
     @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @NotBlank
     private String fullName;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "address_id")
+    private Address address;
     @NotBlank
-    private String address;
-    @NotBlank
+    @Email
     private String email;
     @NotEmpty
     private String phoneNum;
-    private String roles;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "role_id")
+    private Roles role;
     private int age;
     private String gender;
-    private int otp;
+    private String otp;
     private String password;
+    @Temporal(TemporalType.DATE)
+    @JsonIgnore
+    @Column(updatable = false)
+    private Date createdDate = new Date();
+    @Temporal(TemporalType.DATE)
+    @JsonIgnore
+    @Column(insertable = false)
+    private Date updatedDate = new Date();
 
 }
