@@ -1,7 +1,9 @@
 package com.takeo.service.impl;
 
+import com.takeo.entity.Address;
 import com.takeo.entity.UserDetails;
 import com.takeo.payloads.LoginDTO;
+import com.takeo.payloads.UpdateUserDTO;
 import com.takeo.payloads.UserDTO;
 import com.takeo.repo.UserRepo;
 import com.takeo.service.UserService;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -45,12 +48,23 @@ public class UserServiceImpl implements UserService {
             BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
             String password = PasswordGenerator.getRandomPassword();
             String encryptPass = bcrypt.encode(password);
-            user.setPassword(encryptPass); //For authenticate user use bcrypt.matches(a,b)
-            user.setOtp("");
-           String sendPass = EmailSender.sendRandomPassword(user.getEmail(),password);
-           if(sendPass!=null){
-               message ="User registered successfully";
-           }
+            if(user.getPassword()!=null){
+                user.setPassword(encryptPass); //For authenticate user use bcrypt.matches(a,b)
+                user.setOtp("");
+                String sendPass = EmailSender.sendRandomPassword(user.getEmail(),password);
+                if(sendPass!=null){
+                    message ="User updated successfully \tNew Password sent to "+user.getEmail();
+                }
+            }
+            else {
+                user.setPassword(encryptPass); //For authenticate user use bcrypt.matches(a,b)
+                user.setOtp("");
+                String sendPass = EmailSender.sendRandomPassword(user.getEmail(),password);
+                if(sendPass!=null){
+                    message ="User registered successfully";
+                }
+            }
+
            userRepo.save(user);
         }
 
@@ -59,7 +73,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String loginUser(LoginDTO loginDTO) {
-        
+
 
 
         return null;
@@ -78,7 +92,33 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String updateUserDetails(int id) {
-        return null;
+    public String updateUserDetails(int id, UpdateUserDTO userDTO) {
+        Optional<UserDetails> usr = userRepo.findById(id);
+        String message = "Failed to update user details";
+        if(usr.isPresent()){
+            message = "User updated successfully";
+            UserDetails user = usr.get();
+            if(!user.getFullName().equals(userDTO.getFullName())){
+                user.setFullName(userDTO.getFullName());
+            }
+            if(userDTO.getAddress()!=null && user.getAddress()!=null){
+                user.setAddress(userDTO.getAddress());
+            }
+
+            if(!user.getPhoneNum().equals(userDTO.getPhoneNum())){
+                user.setPhoneNum(userDTO.getPhoneNum());
+            }
+            if(!user.getEmail().equals(userDTO.getEmail())){
+               String otp = EmailSender.sendOtp(userDTO.getEmail()); // Assume verification code is send to new email
+                if(otp!=null){
+                    user.setEmail(userDTO.getEmail());
+                    user.setOtp(otp);
+                    message = "Otp sent to new email. Please verify OTP";
+                }
+            }
+            user.setUpdatedDate(new Date());
+            userRepo.save(user);
+        }
+        return message;
     }
 }
