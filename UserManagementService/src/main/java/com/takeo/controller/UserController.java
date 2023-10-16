@@ -1,6 +1,7 @@
 package com.takeo.controller;
 
 import com.takeo.entity.UserDetails;
+import com.takeo.payloads.LoginDTO;
 import com.takeo.payloads.UpdateUserDTO;
 import com.takeo.payloads.UserDTO;
 import com.takeo.service.impl.UserServiceImpl;
@@ -47,6 +48,14 @@ public class UserController {
         Map<String, String> response = new HashMap<>();
         response.put("message", update);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Map<String,String>> userLogin(@RequestBody LoginDTO loginDTO){
+       String login = userService.loginUser(loginDTO);
+        Map<String,String> response = new HashMap<>();
+        response.put("message",login);
+        return new ResponseEntity<>(response,HttpStatus.OK);
     }
 
 }

@@ -74,9 +74,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public String loginUser(LoginDTO loginDTO) {
 
-
-
-        return null;
+    Optional<UserDetails> usr = userRepo.findByEmail(loginDTO.getEmail());
+    String message = "No user found with email:  "+loginDTO.getEmail();
+    if(usr.isPresent()){
+        message = "Invalid username or password. Please try again";
+        BCryptPasswordEncoder bCrypt = new BCryptPasswordEncoder();
+        UserDetails user = usr.get();
+        if(bCrypt.matches(loginDTO.getPassword(),user.getPassword())){
+            message = "User authenticated, Login successful";
+        }
+    }
+        return message;
     }
 
     @Override
