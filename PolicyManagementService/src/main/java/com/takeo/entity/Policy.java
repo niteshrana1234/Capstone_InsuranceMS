@@ -20,10 +20,10 @@ public class Policy {
     private String policyNUm;
     private String policyType;
     private String coverage;
-    @Column(updatable = false)
     @Temporal(TemporalType.DATE)
     private Date startDate;
     @JsonIgnore
+    @Temporal(TemporalType.DATE)
     private Date expireDate;
     private int duration;
     @JsonIgnore

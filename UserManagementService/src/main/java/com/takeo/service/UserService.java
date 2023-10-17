@@ -12,5 +12,4 @@ public interface UserService {
     public UserDetails getUserDetails(int id);
     public String updateUserDetails(int id, UpdateUserDTO userDTO);
 
-
 }
