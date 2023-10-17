@@ -4,9 +4,11 @@ import com.takeo.entity.Policy;
 import com.takeo.payloads.UpdatePolicyDTO;
 import com.takeo.repo.PolicyRepo;
 import com.takeo.service.PolicyService;
+import com.takeo.utils.PremiumCalculator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,12 +19,13 @@ public class PolicyServiceImpl implements PolicyService {
     @Autowired
     PolicyRepo policyRepo;
     @Override
-    public String createPolicy(int userId,Policy policy) {
+    public String createPolicy(Policy policy) {
         String message ="Error";
         if(policy!=null){
-            policy.setUserId(userId);
+//            System.out.println("******************User Id : "+ policy.getUserId());
+            policy.setPremium(PremiumCalculator.totalPremium(policy));
             Policy savedPolicy = policyRepo.save(policy);
-cd            if(savedPolicy!=null){
+            if(savedPolicy!=null){
                 message = "Success!!";
             }
         }

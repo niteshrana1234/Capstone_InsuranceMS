@@ -3,6 +3,7 @@ package com.takeo.service.impl;
 import com.takeo.entity.Address;
 import com.takeo.entity.UserDetails;
 import com.takeo.payloads.LoginDTO;
+import com.takeo.payloads.Policy;
 import com.takeo.payloads.UpdateUserDTO;
 import com.takeo.payloads.UserDTO;
 import com.takeo.repo.UserRepo;
@@ -13,6 +14,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
 import java.util.Optional;
@@ -22,6 +24,8 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     UserRepo userRepo;
+    @Autowired
+    RestTemplate restTemplate;
     @Override
     public String registerUser(UserDTO userDTO) {
         Optional<UserDetails> usr = userRepo.findByEmail(userDTO.getEmail());
@@ -129,4 +133,20 @@ public class UserServiceImpl implements UserService {
         }
         return message;
     }
+
+    @Override
+    public String buyPolicy(int id, Policy policy) {
+        Optional<UserDetails> optional = userRepo.findById(id);
+        if(optional.isPresent()){
+            UserDetails user = optional.get();
+            policy.setUserId(user.getId());
+             Policy policy1 =  restTemplate.postForObject("http://10.0.0.206:2222/policy/buy-policy",policy,Policy.class);
+            if(policy1!=null){
+                return "Successfully bought policy!!";
+            }
+        }
+
+        return "Failed to buy policy";
+    }
+
 }

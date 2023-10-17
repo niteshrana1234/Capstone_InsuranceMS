@@ -1,22 +1,19 @@
-package com.takeo.entity;
+package com.takeo.payloads;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Calendar;
 import java.util.Date;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
 public class Policy {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonIgnore
-    private int id;
+
     private String policyNum;
     private String policyType;
     private String coverage;
@@ -29,14 +26,4 @@ public class Policy {
     private int userId;
     @JsonIgnore
     private long premium;
-
-    @PrePersist
-    public void calculateExpireDate() {
-        if (startDate != null && duration > 0) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(startDate);
-            calendar.add(Calendar.MONTH, duration); // Add duration months to start date
-            expireDate = calendar.getTime();
-        }
-    }
 }

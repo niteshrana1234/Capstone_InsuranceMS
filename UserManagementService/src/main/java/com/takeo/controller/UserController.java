@@ -2,6 +2,7 @@ package com.takeo.controller;
 
 import com.takeo.entity.UserDetails;
 import com.takeo.payloads.LoginDTO;
+import com.takeo.payloads.Policy;
 import com.takeo.payloads.UpdateUserDTO;
 import com.takeo.payloads.UserDTO;
 import com.takeo.service.impl.UserServiceImpl;
@@ -55,6 +56,13 @@ public class UserController {
        String login = userService.loginUser(loginDTO);
         Map<String,String> response = new HashMap<>();
         response.put("message",login);
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+@PostMapping("/buy-policy/{id}")
+    public ResponseEntity<Map<String,String>> buyPolicy(@PathVariable("id") int userId, @RequestBody Policy policy){
+         String buyPolicy =   userService.buyPolicy(userId,policy);
+        Map<String,String> response = new HashMap<>();
+        response.put("message",buyPolicy);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
 
