@@ -1,5 +1,6 @@
 package com.takeo.payloads;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.takeo.entity.Policy;
 import lombok.AllArgsConstructor;
 import lombok.Data;

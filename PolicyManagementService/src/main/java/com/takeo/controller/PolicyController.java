@@ -2,6 +2,7 @@ package com.takeo.controller;
 
 import com.netflix.discovery.converters.Auto;
 import com.takeo.entity.Policy;
+import com.takeo.payloads.PolicyDetails;
 import com.takeo.payloads.UpdatePolicyDTO;
 import com.takeo.service.impl.PolicyServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,11 @@ public class PolicyController {
     public ResponseEntity<List<Policy>> userPolicies(@PathVariable("id") int userId){
        List<Policy> policies = policyService.getPolicy(userId);
       return new ResponseEntity<>(policies,HttpStatus.OK);
+    }
+    @GetMapping("/getAllPolicy")
+    public ResponseEntity<List<PolicyDetails>> getAllPolicy(){
+          List<PolicyDetails>  listOfPolicy =  policyService.getAllPolicy();
+          return new ResponseEntity<>(listOfPolicy,HttpStatus.OK);
     }
 
 }

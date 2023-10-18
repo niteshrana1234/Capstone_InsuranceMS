@@ -12,9 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class PolicyServiceImpl implements PolicyService {
@@ -77,6 +75,27 @@ public class PolicyServiceImpl implements PolicyService {
     @Override
     public List<PolicyDetails> getAllPolicy() {
 
-        return null;
+        List<PolicyDetails> policyDetails = new ArrayList<>();
+        Set<Integer> processedId = new HashSet<>();
+        for(Policy policy : policyRepo.findAll()){
+           int userId = policy.getUserId();
+           UserDetails user = restTemplate.getForObject("http://10.0.0.206:1111/user/getUser?id=" + userId,UserDetails.class);
+           if(!processedId.contains(userId) && user!=null){
+               PolicyDetails details = new PolicyDetails();
+               List<Policy> userPolicy = new ArrayList<>();
+               details.setPolicyHolder(user.getFullName());
+               processedId.add(user.getId());
+               for(Policy policy1: policyRepo.findAll()){
+                   if(policy1.getUserId() == user.getId()){
+                       userPolicy.add(policy1);
+                   }
+               }
+               details.setPolicies(userPolicy);
+               policyDetails.add(details);
+           }
+
+        }
+
+        return policyDetails;
     }
 }
