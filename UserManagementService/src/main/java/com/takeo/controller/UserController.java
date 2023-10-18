@@ -58,12 +58,5 @@ public class UserController {
         response.put("message",login);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
-@PostMapping("/buy-policy/{id}")
-    public ResponseEntity<Map<String,String>> buyPolicy(@PathVariable("id") int userId, @RequestBody Policy policy){
-         String buyPolicy =   userService.buyPolicy(userId,policy);
-        Map<String,String> response = new HashMap<>();
-        response.put("message",buyPolicy);
-        return new ResponseEntity<>(response,HttpStatus.OK);
-    }
 
 }

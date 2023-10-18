@@ -134,19 +134,5 @@ public class UserServiceImpl implements UserService {
         return message;
     }
 
-    @Override
-    public String buyPolicy(int id, Policy policy) {
-        Optional<UserDetails> optional = userRepo.findById(id);
-        if(optional.isPresent()){
-            UserDetails user = optional.get();
-            policy.setUserId(user.getId());
-             Policy policy1 =  restTemplate.postForObject("http://10.0.0.206:2222/policy/buy-policy",policy,Policy.class);
-            if(policy1!=null){
-                return "Successfully bought policy!!";
-            }
-        }
-
-        return "Failed to buy policy";
-    }
 
 }

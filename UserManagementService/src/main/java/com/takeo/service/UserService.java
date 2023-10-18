@@ -12,6 +12,5 @@ public interface UserService {
     public String loginUser(LoginDTO loginDTO);
     public UserDetails getUserDetails(int id);
     public String updateUserDetails(int id, UpdateUserDTO userDTO);
-    public String buyPolicy(int id, Policy policy);
 
 }
