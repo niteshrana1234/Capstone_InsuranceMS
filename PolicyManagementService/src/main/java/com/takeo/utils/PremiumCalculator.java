@@ -1,7 +1,6 @@
 package com.takeo.utils;
 
 import com.takeo.entity.Policy;
-
 public class PremiumCalculator {
 
     public static int totalPremium(Policy policy) {

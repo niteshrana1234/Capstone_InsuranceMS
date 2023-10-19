@@ -1,9 +1,7 @@
 package com.takeo.service.impl;
 
-import com.takeo.entity.Address;
 import com.takeo.entity.UserDetails;
 import com.takeo.payloads.LoginDTO;
-import com.takeo.payloads.Policy;
 import com.takeo.payloads.UpdateUserDTO;
 import com.takeo.payloads.UserDTO;
 import com.takeo.repo.UserRepo;
@@ -96,9 +94,7 @@ public class UserServiceImpl implements UserService {
         String message = "User not found with given id";
         Optional<UserDetails> usr = userRepo.findById(id);
         if(usr.isPresent()){
-            UserDetails user = usr.get();
-
-            return user;
+            return usr.get();
         }
         return null;
     }

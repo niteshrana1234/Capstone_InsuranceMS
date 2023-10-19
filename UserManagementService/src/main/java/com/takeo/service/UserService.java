@@ -2,7 +2,6 @@ package com.takeo.service;
 
 import com.takeo.entity.UserDetails;
 import com.takeo.payloads.LoginDTO;
-import com.takeo.payloads.Policy;
 import com.takeo.payloads.UpdateUserDTO;
 import com.takeo.payloads.UserDTO;
 

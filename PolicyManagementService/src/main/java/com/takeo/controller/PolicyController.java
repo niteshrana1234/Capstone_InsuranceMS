@@ -1,18 +1,14 @@
 package com.takeo.controller;
 
-import com.netflix.discovery.converters.Auto;
+
 import com.takeo.entity.Policy;
 import com.takeo.payloads.PolicyDetails;
 import com.takeo.payloads.UpdatePolicyDTO;
 import com.takeo.service.impl.PolicyServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.client.loadbalancer.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
-
-import javax.swing.text.html.parser.Entity;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,9 +36,15 @@ public class PolicyController {
     }
     @GetMapping("/getUserPolicy/{id}")
     public ResponseEntity<List<Policy>> userPolicies(@PathVariable("id") int userId){
-       List<Policy> policies = policyService.getPolicy(userId);
+       List<Policy> policies = policyService.getPolicyByUserId(userId);
       return new ResponseEntity<>(policies,HttpStatus.OK);
     }
+    @GetMapping("getPolicy/{id}")
+    public ResponseEntity<Policy> getPolicyById(@PathVariable("id") int policyId){
+    Policy policy = policyService.getPolicy(policyId);
+    return new ResponseEntity<>(policy,HttpStatus.OK);
+    }
+
     @GetMapping("/getAllPolicy")
     public ResponseEntity<List<PolicyDetails>> getAllPolicy(){
           List<PolicyDetails>  listOfPolicy =  policyService.getAllPolicy();

@@ -23,20 +23,22 @@ public class PolicyServiceImpl implements PolicyService {
     RestTemplate restTemplate;
 
     @Override
-    public String createPolicy(int userId,Policy policy) {
+    public String createPolicy(int userId, Policy policy) {
         String message = "Error";
         UserDetails user = restTemplate.getForObject("http://10.0.0.206:1111/user/getUser?id=" + userId, UserDetails.class);
-        if (user!=null && policy != null) {
+        if (user != null && policy != null) {
             policy.setPremium(PremiumCalculator.totalPremium(policy));
             policy.setUserId(user.getId());
-            Policy savedPolicy = policyRepo.save(policy);
-            if (savedPolicy != null) {
-                message = "Success!!";
-            }
+            policyRepo.save(policy);
+            message = "Success!!";
         }
         return message;
     }
 
+    /*
+    Need to add auto policyNum generator
+     and set in policy
+     */
     @Override
     public String updatePolicy(int userId, UpdatePolicyDTO updatePolicyDTO) {
         String message = "Policy not found with given id";
@@ -56,13 +58,13 @@ public class PolicyServiceImpl implements PolicyService {
     }
 
     @Override
-    public List<Policy> getPolicy(int userId) {
-        UserDetails user = restTemplate.getForObject("http://10.0.0.206:1111/user/getUser?id=" + userId,UserDetails.class);
-        if(user!=null){
-       List<Policy> policyList = policyRepo.findAll();
-       List<Policy> userAllPolicy = new ArrayList<>();
-            for(Policy policy: policyList){
-                if(policy.getUserId() == user.getId()){
+    public List<Policy> getPolicyByUserId(int userId) {
+        UserDetails user = restTemplate.getForObject("http://10.0.0.206:1111/user/getUser?id=" + userId, UserDetails.class);
+        if (user != null) {
+            List<Policy> policyList = policyRepo.findAll();
+            List<Policy> userAllPolicy = new ArrayList<>();
+            for (Policy policy : policyList) {
+                if (policy.getUserId() == user.getId()) {
                     userAllPolicy.add(policy);
                 }
             }
@@ -73,29 +75,37 @@ public class PolicyServiceImpl implements PolicyService {
     }
 
     @Override
+    public Policy getPolicy(int policyId) {
+        Optional<Policy> optional = policyRepo.findById(policyId);
+        if (optional.isPresent()) {
+            return optional.get();
+        }
+        return null;
+    }
+
+
+    @Override
     public List<PolicyDetails> getAllPolicy() {
 
         List<PolicyDetails> policyDetails = new ArrayList<>();
         Set<Integer> processedId = new HashSet<>();
-        for(Policy policy : policyRepo.findAll()){
-           int userId = policy.getUserId();
-           UserDetails user = restTemplate.getForObject("http://10.0.0.206:1111/user/getUser?id=" + userId,UserDetails.class);
-           if(!processedId.contains(userId) && user!=null){
-               PolicyDetails details = new PolicyDetails();
-               List<Policy> userPolicy = new ArrayList<>();
-               details.setPolicyHolder(user.getFullName());
-               processedId.add(user.getId());
-               for(Policy policy1: policyRepo.findAll()){
-                   if(policy1.getUserId() == user.getId()){
-                       userPolicy.add(policy1);
-                   }
-               }
-               details.setPolicies(userPolicy);
-               policyDetails.add(details);
-           }
-
+        for (Policy policy : policyRepo.findAll()) {
+            int userId = policy.getUserId();
+            UserDetails user = restTemplate.getForObject("http://10.0.0.206:1111/user/getUser?id=" + userId, UserDetails.class);
+            if (!processedId.contains(userId) && user != null) {
+                PolicyDetails details = new PolicyDetails();
+                List<Policy> userPolicy = new ArrayList<>();
+                details.setPolicyHolder(user.getFullName());
+                processedId.add(user.getId());
+                for (Policy policy1 : policyRepo.findAll()) {
+                    if (policy1.getUserId() == user.getId()) {
+                        userPolicy.add(policy1);
+                    }
+                }
+                details.setPolicies(userPolicy);
+                policyDetails.add(details);
+            }
         }
-
         return policyDetails;
     }
 }

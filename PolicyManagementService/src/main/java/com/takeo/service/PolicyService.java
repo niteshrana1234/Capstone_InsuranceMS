@@ -9,7 +9,8 @@ import java.util.List;
 public interface PolicyService {
     public String createPolicy(int userId,Policy policy);
     public String updatePolicy(int userId,UpdatePolicyDTO updatePolicyDTO);
-    public List<Policy> getPolicy(int userId);
+    public List<Policy> getPolicyByUserId(int userId);
+    public Policy getPolicy(int policyId);
     public List<PolicyDetails> getAllPolicy();
 
 }
