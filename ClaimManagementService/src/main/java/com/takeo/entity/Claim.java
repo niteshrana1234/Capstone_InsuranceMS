@@ -20,5 +20,9 @@ public class Claim {
     private int policyId;
     private int userId;
     @Temporal(TemporalType.DATE)
+    @Column(insertable = false)
+    private Date claimUpdated = new Date();
+    @Temporal(TemporalType.DATE)
+    @Column(updatable = false)
     private Date dateFilled = new Date();
 }

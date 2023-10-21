@@ -3,14 +3,16 @@ package com.takeo.service;
 import com.takeo.entity.Claim;
 import com.takeo.payloads.ClaimDTO;
 import com.takeo.payloads.Policy;
-import com.takeo.payloads.updateClaimDTO;
+import com.takeo.payloads.UpdateClaimDTO;
 import com.takeo.repo.ClaimRepo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ClaimServiceImpl implements ClaimService {
@@ -22,7 +24,7 @@ public class ClaimServiceImpl implements ClaimService {
     @Override
     public String createClaim(ClaimDTO claimDTO) {
         String message = "Policy not found with given user id " + claimDTO.getPolicyId();
-        Policy policy = restTemplate.getForObject("http://laptop-jspnhksk.hsd1.tx.comcast.net:2222/policy/getPolicy/" + claimDTO.getPolicyId(), Policy.class);
+        Policy policy = restTemplate.getForObject("http://10.0.0.206:2222/policy/getPolicy/" + claimDTO.getPolicyId(), Policy.class);
         if (policy != null) {
             Claim claim = new Claim();
             BeanUtils.copyProperties(claimDTO, claim);
@@ -36,8 +38,21 @@ public class ClaimServiceImpl implements ClaimService {
     }
 
     @Override
-    public String updateClaim(updateClaimDTO updateDTO) {
-        return null;
+    public String updateClaim(UpdateClaimDTO updateDTO) {
+        String message ="Policy doesn't exist with id : "+updateDTO.getPolicyId();
+        Policy policy = restTemplate.getForObject("http://10.0.0.206:2222/policy/getPolicy/" + updateDTO.getPolicyId(), Policy.class);
+        if(policy!=null ){
+            message ="Claim not found with given policy id : "+updateDTO.getPolicyId();
+            Optional<Claim> optional = claimRepo.findByPolicyId(updateDTO.getPolicyId());
+            if(optional.isPresent()) {
+                Claim claim = optional.get();
+                BeanUtils.copyProperties(updateDTO,claim);
+                claim.setClaimUpdated(new Date());
+                claimRepo.save(claim);
+                message = "Update success";
+            }
+        }
+        return message;
     }
 
     @Override

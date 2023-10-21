@@ -1,6 +1,7 @@
 package com.takeo.controller;
 
 import com.takeo.payloads.ClaimDTO;
+import com.takeo.payloads.UpdateClaimDTO;
 import com.takeo.service.ClaimServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,5 +23,11 @@ public class ClaimController {
        response.put("message",create);
        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-
+    @PostMapping("/update-claim")
+    public ResponseEntity<Map<String,String>> updateClaim(@RequestBody UpdateClaimDTO updateClaimDTO){
+       String updateClaim = claimService.updateClaim(updateClaimDTO);
+        Map<String,String> response = new HashMap<>();
+        response.put("message",updateClaim);
+        return  new ResponseEntity<>(response,HttpStatus.OK);
+    }
 }

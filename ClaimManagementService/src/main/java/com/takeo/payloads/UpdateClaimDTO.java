@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class updateClaimDTO {
+public class UpdateClaimDTO {
     private String claimStatus;
     private double claimAmount;
+    private int policyId;
 }
