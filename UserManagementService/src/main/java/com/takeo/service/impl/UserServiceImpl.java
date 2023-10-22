@@ -91,7 +91,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetails getUserDetails(int id) {
-        String message = "User not found with given id";
         Optional<UserDetails> usr = userRepo.findById(id);
         if(usr.isPresent()){
             return usr.get();

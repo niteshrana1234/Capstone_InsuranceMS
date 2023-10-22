@@ -2,6 +2,7 @@ package com.takeo.controller;
 
 import com.takeo.payloads.ClaimDTO;
 import com.takeo.payloads.UpdateClaimDTO;
+import com.takeo.payloads.UserClaims;
 import com.takeo.service.ClaimServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -29,5 +31,10 @@ public class ClaimController {
         Map<String,String> response = new HashMap<>();
         response.put("message",updateClaim);
         return  new ResponseEntity<>(response,HttpStatus.OK);
+    }
+    @GetMapping("/getUserClaims/{id}")
+    public ResponseEntity<UserClaims> getUserClaims(@PathVariable("id") int userId){
+        UserClaims userClaims = claimService.getUserClaim(userId);
+        return new ResponseEntity<>(userClaims,HttpStatus.OK);
     }
 }
