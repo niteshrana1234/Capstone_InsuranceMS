@@ -79,6 +79,7 @@ public class ClaimServiceImpl implements ClaimService {
 
     @Override
     public List<Claim> getAllClaim() {
-        return null;
+
+        return claimRepo.findAll();
     }
 }

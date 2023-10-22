@@ -1,5 +1,6 @@
 package com.takeo.controller;
 
+import com.takeo.entity.Claim;
 import com.takeo.payloads.ClaimDTO;
 import com.takeo.payloads.UpdateClaimDTO;
 import com.takeo.payloads.UserClaims;
@@ -36,5 +37,10 @@ public class ClaimController {
     public ResponseEntity<UserClaims> getUserClaims(@PathVariable("id") int userId){
         UserClaims userClaims = claimService.getUserClaim(userId);
         return new ResponseEntity<>(userClaims,HttpStatus.OK);
+    }
+    @GetMapping("/getAllClaims")
+    public ResponseEntity<List<Claim>> getAllClaims(){
+      List<Claim> claimList =  claimService.getAllClaim();
+        return new ResponseEntity<>(claimList,HttpStatus.OK);
     }
 }
