@@ -11,6 +11,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,6 +22,6 @@ public class UserDTO {
     private String phoneNum;
     private int age;
     private String gender;
-    private Roles role;
+    private List<Roles> role;
    private Address address;
 }

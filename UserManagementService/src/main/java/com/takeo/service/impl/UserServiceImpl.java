@@ -1,9 +1,11 @@
 package com.takeo.service.impl;
 
+import com.takeo.entity.Roles;
 import com.takeo.entity.UserDetails;
 import com.takeo.payloads.LoginDTO;
 import com.takeo.payloads.UpdateUserDTO;
 import com.takeo.payloads.UserDTO;
+import com.takeo.repo.RolesRepo;
 import com.takeo.repo.UserRepo;
 import com.takeo.service.UserService;
 import com.takeo.utils.EmailSender;
@@ -14,8 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -23,17 +24,27 @@ public class UserServiceImpl implements UserService {
     @Autowired
     UserRepo userRepo;
     @Autowired
+    RolesRepo rolesRepo;
+    @Autowired
     RestTemplate restTemplate;
     @Override
     public String registerUser(UserDTO userDTO) {
         Optional<UserDetails> usr = userRepo.findByEmail(userDTO.getEmail());
         String message = "User already exist with email : "+userDTO.getEmail();
+        System.out.println("here");
         if(usr.isEmpty()){
             String otp = EmailSender.sendOtp(userDTO.getEmail());
             if(otp!=null){
+                List<Roles> rolesList = new ArrayList<>();
                 message = "OTP sent to respected email !!";
                 UserDetails user = new UserDetails();
                 BeanUtils.copyProperties(userDTO,user);
+                user.setRole(null);
+                for(Roles role : userDTO.getRole()){
+                    Optional<Roles> optional = rolesRepo.findByRoleName(role.getRoleName().toUpperCase());
+                    optional.ifPresent(rolesList::add);
+                }
+                user.setRole(rolesList);
                 user.setOtp(otp);
                 userRepo.save(user);
             }

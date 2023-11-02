@@ -16,5 +16,8 @@ public class Roles {
     @Column(name = "role_id")
     private int id;
     @NotBlank
-    private String role;
+    private String roleName;
+    public Roles(String roleName){
+        this.roleName = roleName;
+    }
 }
