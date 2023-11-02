@@ -22,7 +22,7 @@ public class UserPrincipal implements UserDetails {
         List<Roles> list = userEntity.getRole();
         List<GrantedAuthority> authorities = new ArrayList<>();
         for(Roles roles : list){
-            authorities.add(new SimpleGrantedAuthority("ROLES_"+roles.getRoleName()));
+            authorities.add(new SimpleGrantedAuthority("ROLE_"+roles.getRoleName()));
         }
         return authorities;
     }
