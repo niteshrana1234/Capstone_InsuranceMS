@@ -1,15 +1,15 @@
 package com.takeo.repo;
 
-import com.takeo.entity.UserDetails;
+import com.takeo.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface UserRepo extends JpaRepository<UserDetails,Integer> {
+public interface UserRepo extends JpaRepository<UserEntity,Integer> {
 
-    public Optional<UserDetails> findByEmail(String email);
-    public Optional<UserDetails> findByOtp(String otp);
+    public Optional<UserEntity> findByEmail(String email);
+    public Optional<UserEntity> findByOtp(String otp);
 
 }

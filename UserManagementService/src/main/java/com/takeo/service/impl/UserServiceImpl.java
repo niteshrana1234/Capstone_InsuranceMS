@@ -1,10 +1,11 @@
 package com.takeo.service.impl;
 
 import com.takeo.entity.Roles;
-import com.takeo.entity.UserDetails;
+import com.takeo.entity.UserEntity;
 import com.takeo.payloads.LoginDTO;
 import com.takeo.payloads.UpdateUserDTO;
 import com.takeo.payloads.UserDTO;
+import com.takeo.payloads.UserPrincipal;
 import com.takeo.repo.RolesRepo;
 import com.takeo.repo.UserRepo;
 import com.takeo.service.UserService;
@@ -12,6 +13,15 @@ import com.takeo.utils.EmailSender;
 import com.takeo.utils.PasswordGenerator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -19,7 +29,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.*;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Autowired
     UserRepo userRepo;
@@ -27,20 +37,23 @@ public class UserServiceImpl implements UserService {
     RolesRepo rolesRepo;
     @Autowired
     RestTemplate restTemplate;
+//    @Autowired
+//    AuthenticationManager authenticationManager;
+
     @Override
     public String registerUser(UserDTO userDTO) {
-        Optional<UserDetails> usr = userRepo.findByEmail(userDTO.getEmail());
-        String message = "User already exist with email : "+userDTO.getEmail();
+        Optional<UserEntity> usr = userRepo.findByEmail(userDTO.getEmail());
+        String message = "User already exist with email : " + userDTO.getEmail();
         System.out.println("here");
-        if(usr.isEmpty()){
+        if (usr.isEmpty()) {
             String otp = EmailSender.sendOtp(userDTO.getEmail());
-            if(otp!=null){
+            if (otp != null) {
                 List<Roles> rolesList = new ArrayList<>();
                 message = "OTP sent to respected email !!";
-                UserDetails user = new UserDetails();
-                BeanUtils.copyProperties(userDTO,user);
+                UserEntity user = new UserEntity();
+                BeanUtils.copyProperties(userDTO, user);
                 user.setRole(null);
-                for(Roles role : userDTO.getRole()){
+                for (Roles role : userDTO.getRole()) {
                     Optional<Roles> optional = rolesRepo.findByRoleName(role.getRoleName().toUpperCase());
                     optional.ifPresent(rolesList::add);
                 }
@@ -51,59 +64,55 @@ public class UserServiceImpl implements UserService {
         }
         return message;
     }
+
     @Override
     public String verifyOtp(String otp) {
 
-        Optional<UserDetails> usr = userRepo.findByOtp(otp);
+        Optional<UserEntity> usr = userRepo.findByOtp(otp);
         String message = "Invalid otp";
-        if(usr.isPresent()){
-            UserDetails user = usr.get();
+        if (usr.isPresent()) {
+            UserEntity user = usr.get();
             BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
             String password = PasswordGenerator.getRandomPassword();
             String encryptPass = bcrypt.encode(password);
-            if(user.getPassword()!=null){
+            if (user.getPassword() != null) {
                 user.setPassword(encryptPass); //For authenticate user use bcrypt.matches(a,b)
                 user.setOtp("");
-                String sendPass = EmailSender.sendRandomPassword(user.getEmail(),password);
-                if(sendPass!=null){
-                    message ="User updated successfully \tNew Password sent to "+user.getEmail();
+                String sendPass = EmailSender.sendRandomPassword(user.getEmail(), password);
+                if (sendPass != null) {
+                    message = "User updated successfully \tNew Password sent to " + user.getEmail();
                 }
-            }
-            else {
+            } else {
                 user.setPassword(encryptPass); //For authenticate user use bcrypt.matches(a,b)
                 user.setOtp("");
-                String sendPass = EmailSender.sendRandomPassword(user.getEmail(),password);
-                if(sendPass!=null){
-                    message ="User registered successfully";
+                String sendPass = EmailSender.sendRandomPassword(user.getEmail(), password);
+                if (sendPass != null) {
+                    message = "User registered successfully";
                 }
             }
 
-           userRepo.save(user);
+            userRepo.save(user);
         }
 
         return message;
     }
 
-    @Override
-    public String loginUser(LoginDTO loginDTO) {
-
-    Optional<UserDetails> usr = userRepo.findByEmail(loginDTO.getEmail());
-    String message = "No user found with email:  "+loginDTO.getEmail();
-    if(usr.isPresent()){
-        message = "Invalid username or password. Please try again";
-        BCryptPasswordEncoder bCrypt = new BCryptPasswordEncoder();
-        UserDetails user = usr.get();
-        if(bCrypt.matches(loginDTO.getPassword(),user.getPassword())){
-            message = "User authenticated, Login successful";
-        }
-    }
-        return message;
-    }
+//    @Override
+//    public String loginUser(LoginDTO loginDTO) {
+//        try{
+//            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDTO.getEmail()
+//                    , loginDTO.getPassword()));
+//            SecurityContextHolder.getContext().setAuthentication(authentication);
+//            return "Login Successful";
+//        } catch (AuthenticationException e){
+//            return e.getMessage();
+//        }
+//    }
 
     @Override
-    public UserDetails getUserDetails(int id) {
-        Optional<UserDetails> usr = userRepo.findById(id);
-        if(usr.isPresent()){
+    public UserEntity getUserDetails(int id) {
+        Optional<UserEntity> usr = userRepo.findById(id);
+        if (usr.isPresent()) {
             return usr.get();
         }
         return null;
@@ -111,24 +120,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String updateUserDetails(int id, UpdateUserDTO userDTO) {
-        Optional<UserDetails> usr = userRepo.findById(id);
+        Optional<UserEntity> usr = userRepo.findById(id);
         String message = "Failed to update user details";
-        if(usr.isPresent()){
+        if (usr.isPresent()) {
             message = "User updated successfully";
-            UserDetails user = usr.get();
-            if(!user.getFullName().equals(userDTO.getFullName())){
+            UserEntity user = usr.get();
+            if (!user.getFullName().equals(userDTO.getFullName())) {
                 user.setFullName(userDTO.getFullName());
             }
-            if(userDTO.getAddress()!=null && user.getAddress()!=null){
+            if (userDTO.getAddress() != null && user.getAddress() != null) {
                 user.setAddress(userDTO.getAddress());
             }
 
-            if(!user.getPhoneNum().equals(userDTO.getPhoneNum())){
+            if (!user.getPhoneNum().equals(userDTO.getPhoneNum())) {
                 user.setPhoneNum(userDTO.getPhoneNum());
             }
-            if(!user.getEmail().equals(userDTO.getEmail())){
-               String otp = EmailSender.sendOtp(userDTO.getEmail()); // Assume verification code is send to new email
-                if(otp!=null){
+            if (!user.getEmail().equals(userDTO.getEmail())) {
+                String otp = EmailSender.sendOtp(userDTO.getEmail()); // Assume verification code is send to new email
+                if (otp != null) {
                     user.setEmail(userDTO.getEmail());
                     user.setOtp(otp);
                     message = "Otp sent to new email. Please verify OTP";
@@ -141,4 +150,14 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        Optional<UserEntity> optionalUser = userRepo.findByEmail(username);
+        if (optionalUser.isPresent()) {
+            UserEntity user = optionalUser.get();
+            return new UserPrincipal(user);
+        }
+        throw new UsernameNotFoundException("User doesn't exist with given email");
+    }
 }

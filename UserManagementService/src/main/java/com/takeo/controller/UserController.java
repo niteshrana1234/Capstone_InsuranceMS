@@ -1,6 +1,6 @@
 package com.takeo.controller;
 
-import com.takeo.entity.UserDetails;
+import com.takeo.entity.UserEntity;
 import com.takeo.payloads.LoginDTO;
 import com.takeo.payloads.UpdateUserDTO;
 import com.takeo.payloads.UserDTO;
@@ -8,6 +8,13 @@ import com.takeo.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -19,6 +26,8 @@ public class UserController {
 
     @Autowired
     UserServiceImpl userService;
+    @Autowired
+    DaoAuthenticationProvider authenticationProvider;
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> registerUser(@RequestBody UserDTO userDTO) {
@@ -37,8 +46,8 @@ public class UserController {
     }
 
     @GetMapping("/getUser")
-    public ResponseEntity<UserDetails> getUser(@RequestParam("id") int id) {
-        UserDetails user = userService.getUserDetails(id);
+    public ResponseEntity<UserEntity> getUser(@RequestParam("id") int id) {
+        UserEntity user = userService.getUserDetails(id);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
@@ -51,11 +60,16 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String,String>> userLogin(@RequestBody LoginDTO loginDTO){
-       String login = userService.loginUser(loginDTO);
-        Map<String,String> response = new HashMap<>();
-        response.put("message",login);
-        return new ResponseEntity<>(response,HttpStatus.OK);
+    public ResponseEntity<String> userLogin(@RequestBody LoginDTO loginDTO){
+        try{
+            UserDetails user = userService.loadUserByUsername(loginDTO.getEmail());
+            Authentication authentication = authenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername()
+                    ,loginDTO.getPassword()));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            return new ResponseEntity<>("Login success",HttpStatus.ACCEPTED);
+        } catch (AuthenticationException e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.UNAUTHORIZED);
+        }
     }
 
 }
