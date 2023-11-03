@@ -1,7 +1,10 @@
 package com.takeo.controller;
 
+import com.netflix.discovery.converters.Auto;
+import com.takeo.config.JwtGeneratorValidator;
 import com.takeo.entity.UserEntity;
 import com.takeo.payloads.LoginDTO;
+import com.takeo.payloads.LoginResponse;
 import com.takeo.payloads.UpdateUserDTO;
 import com.takeo.payloads.UserDTO;
 import com.takeo.service.impl.UserServiceImpl;
@@ -28,6 +31,8 @@ public class UserController {
     UserServiceImpl userService;
     @Autowired
     DaoAuthenticationProvider authenticationProvider;
+    @Autowired
+    JwtGeneratorValidator generatorValidator;
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> registerUser(@RequestBody UserDTO userDTO) {
@@ -48,7 +53,10 @@ public class UserController {
     @GetMapping("/getUser")
     public ResponseEntity<UserEntity> getUser(@RequestParam("id") int id) {
         UserEntity user = userService.getUserDetails(id);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        if(user!=null){
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(user,HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping("/updateUser")
@@ -60,15 +68,16 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> userLogin(@RequestBody LoginDTO loginDTO){
+    public ResponseEntity<LoginResponse> userLogin(@RequestBody LoginDTO loginDTO){
         try{
             UserDetails user = userService.loadUserByUsername(loginDTO.getEmail());
             Authentication authentication = authenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername()
                     ,loginDTO.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            return new ResponseEntity<>("Login success",HttpStatus.ACCEPTED);
+            String token = generatorValidator.generateToken(authentication);
+            return new ResponseEntity<>(new LoginResponse(token),HttpStatus.ACCEPTED);
         } catch (AuthenticationException e){
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(new LoginResponse(e.getMessage()),HttpStatus.UNAUTHORIZED);
         }
     }
 
