@@ -27,7 +27,7 @@ public class PolicyController {
        response.put("message",savePolicy);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-    @PostMapping("/update-policy/{id}")
+    @PutMapping("/update-policy/{id}")
     public ResponseEntity<Map<String,String>> updatePolicy(@PathVariable("id") int userId,@RequestBody UpdatePolicyDTO updatePolicyDTO){
           String update =  policyService.updatePolicy(userId,updatePolicyDTO);
           Map<String,String> response = new HashMap<>();

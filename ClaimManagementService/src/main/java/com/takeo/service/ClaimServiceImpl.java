@@ -5,7 +5,7 @@ import com.takeo.payloads.ClaimDTO;
 import com.takeo.payloads.Policy;
 import com.takeo.payloads.UpdateClaimDTO;
 import com.takeo.payloads.UserClaims;
-import com.takeo.payloads.UserDTO.UserDetails;
+import com.takeo.payloads.UserDTO.UserEntity;
 import com.takeo.repo.ClaimRepo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +60,7 @@ public class ClaimServiceImpl implements ClaimService {
 
     @Override
     public UserClaims getUserClaim(int userId) {
-        UserDetails user = restTemplate.getForObject("http://10.0.0.206:1111/user/getUser?id="+userId, UserDetails.class);
+        UserEntity user = restTemplate.getForObject("http://10.0.0.206:1111/user/getUser?id="+userId, UserEntity.class);
         if(user!=null){
             List<Claim> claimList = claimRepo.findAll();
             List<Claim> claims = new ArrayList<>();

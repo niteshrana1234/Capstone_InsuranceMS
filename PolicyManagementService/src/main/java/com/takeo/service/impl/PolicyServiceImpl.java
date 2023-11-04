@@ -3,7 +3,7 @@ package com.takeo.service.impl;
 import com.takeo.entity.Policy;
 import com.takeo.payloads.PolicyDetails;
 import com.takeo.payloads.UpdatePolicyDTO;
-import com.takeo.payloads.UserDTO.UserDetails;
+import com.takeo.payloads.UserDTO.UserEntity;
 import com.takeo.repo.PolicyRepo;
 import com.takeo.service.PolicyService;
 import com.takeo.utils.PremiumCalculator;
@@ -25,7 +25,7 @@ public class PolicyServiceImpl implements PolicyService {
     @Override
     public String createPolicy(int userId, Policy policy) {
         String message = "Error";
-        UserDetails user = restTemplate.getForObject("http://10.0.0.206:1111/user/getUser?id=" + userId, UserDetails.class);
+        UserEntity user = restTemplate.getForObject("http://10.0.0.206:1111/user/getUser?id=" + userId, UserEntity.class);
         if (user != null && policy != null) {
             policy.setPremium(PremiumCalculator.totalPremium(policy));
             policy.setUserId(user.getId());
@@ -42,7 +42,7 @@ public class PolicyServiceImpl implements PolicyService {
     @Override
     public String updatePolicy(int userId, UpdatePolicyDTO updatePolicyDTO) {
         String message = "Policy not found with given id";
-        UserDetails user = restTemplate.getForObject("http://10.0.0.206:1111/user/getUser?id=" + userId, UserDetails.class);
+        UserEntity user = restTemplate.getForObject("http://10.0.0.206:1111/user/getUser?id=" + userId, UserEntity.class);
         if (user != null) {
             Optional<Policy> policy1 = policyRepo.findByUserId(user.getId());
             if (policy1.isPresent()) {
@@ -59,7 +59,7 @@ public class PolicyServiceImpl implements PolicyService {
 
     @Override
     public List<Policy> getPolicyByUserId(int userId) {
-        UserDetails user = restTemplate.getForObject("http://10.0.0.206:1111/user/getUser?id=" + userId, UserDetails.class);
+        UserEntity user = restTemplate.getForObject("http://10.0.0.206:1111/user/getUser?id=" + userId, UserEntity.class);
         if (user != null) {
             List<Policy> policyList = policyRepo.findAll();
             List<Policy> userAllPolicy = new ArrayList<>();
@@ -91,7 +91,7 @@ public class PolicyServiceImpl implements PolicyService {
         Set<Integer> processedId = new HashSet<>();
         for (Policy policy : policyRepo.findAll()) {
             int userId = policy.getUserId();
-            UserDetails user = restTemplate.getForObject("http://10.0.0.206:1111/user/getUser?id=" + userId, UserDetails.class);
+            UserEntity user = restTemplate.getForObject("http://10.0.0.206:1111/user/getUser?id=" + userId, UserEntity.class);
             if (!processedId.contains(userId) && user != null) {
                 PolicyDetails details = new PolicyDetails();
                 List<Policy> userPolicy = new ArrayList<>();

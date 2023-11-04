@@ -26,7 +26,7 @@ public class ClaimController {
        response.put("message",create);
        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-    @PostMapping("/update-claim")
+    @PutMapping("/update-claim")
     public ResponseEntity<Map<String,String>> updateClaim(@RequestBody UpdateClaimDTO updateClaimDTO){
        String updateClaim = claimService.updateClaim(updateClaimDTO);
         Map<String,String> response = new HashMap<>();

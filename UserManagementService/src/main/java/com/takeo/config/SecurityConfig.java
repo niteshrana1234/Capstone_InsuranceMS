@@ -54,8 +54,12 @@ public class SecurityConfig {
                 .antMatchers("/user/verifyOtp").permitAll()
                 .antMatchers(HttpMethod.POST, "/user/updateUser").hasRole("ADMIN")
                 .antMatchers(HttpMethod.GET, "/user/getUser").hasRole("MANAGER")
+                .antMatchers("/h2-console/**")
+                .permitAll()
+                .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**")
+                .permitAll()
                 .anyRequest()
-                .authenticated()
+                .permitAll()
                 .and()
                 .httpBasic();
         http.addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);

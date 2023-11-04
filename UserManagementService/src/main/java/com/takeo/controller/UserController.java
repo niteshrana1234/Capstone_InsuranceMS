@@ -59,7 +59,7 @@ public class UserController {
         return new ResponseEntity<>(user,HttpStatus.BAD_REQUEST);
     }
 
-    @PostMapping("/updateUser")
+    @PutMapping("/updateUser")
     public ResponseEntity<Map<String, String>> updateUser(@RequestParam("id") int id, @RequestBody UpdateUserDTO userDTO) {
         String update = userService.updateUserDetails(id, userDTO);
         Map<String, String> response = new HashMap<>();
