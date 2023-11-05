@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -16,7 +17,7 @@ public class UserEntity {
     private Address address;
     private String email;
     private String phoneNum;
-    private Roles role;
+    private List<Roles> role;
     private int age;
     private String gender;
     private String otp;
