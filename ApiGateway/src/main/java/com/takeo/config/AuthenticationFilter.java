@@ -25,45 +25,26 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Object> {
         super(Object.class);
     }
     @Override
-    public GatewayFilter apply(Object config)
-    {
+    public GatewayFilter apply(Object config) {
         return ((exchange, chain) -> {
             if (validator.isSecured.test(exchange.getRequest())) {
                 //header contains token or not
-                if (!exchange.getRequest().getHeaders().containsKey(org.springframework.http.HttpHeaders.AUTHORIZATION)) {
+                if (!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
                     throw new RuntimeException("missing authorization header");
                 }
 
                 String authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
                 if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                    authHeader = authHeader.substring(7,authHeader.length());
+                    authHeader = authHeader.substring(7);
                 }
-
                 try {
-                    //validate token
-                    LOGGER.info(" authHeader ??method is called.");
+//                    //REST call to AUTH service
+//                    template.getForObject("http://IDENTITY-SERVICE//validate?token" + authHeader, String.class);
                     jwtUtil.validateToken(authHeader);
 
-                    //Get role from token assuming you are storing role in claims with key 'role'
-//                    String role = jwtUtil.getClaimFromToken(authHeader, "role");
-//
-//                    // Check if request path starts with /admin/api or /user/api
-//                    String path = exchange.getRequest().getPath().value();
-//                    LOGGER.info("role="+role+"===>get value  ??method is called.");
-//
-//                    if(path.startsWith("/admin/api/") && !role.contains("ROLE_ADMIN")){
-//                        LOGGER.info(" admin Role ??method is called.");
-//                        throw new RuntimeException("You don't have enough permissions to access this resource");
-//                    }
-//                    else if(path.startsWith("/user/api/") && !role.contains("ROLE_USER")){
-//                        LOGGER.info(" User Role ??method is called.");
-//                        throw new RuntimeException("You don't have enough permissions to access this resource");
-
                 } catch (Exception e) {
-                    System.out.println("invalid access...!");
-                    LOGGER.info(" unauthorized  ??method is called.");
-
-                    throw new RuntimeException("unauthorized access to application");
+                   LOGGER.error(e.getMessage());
+                    throw new RuntimeException("un authorized access to application");
                 }
             }
             return chain.filter(exchange);

@@ -1,9 +1,9 @@
 package com.takeo.config;
 
-import com.netflix.discovery.converters.Auto;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
@@ -14,7 +14,8 @@ import java.util.Date;
 
 @Component
 public class JwtGeneratorValidator {
-    private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+    private static final String SECRET_KEY = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
+//   private static final Key KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     public String generateToken(Authentication authentication) {
 
@@ -26,14 +27,14 @@ public class JwtGeneratorValidator {
                 .setSubject(userName)
                 .setIssuedAt(currentDate)
                 .setExpiration(expireDate)
-                .signWith(key,SignatureAlgorithm.HS512)
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                 .compact();
         return token;
     }
 
     public String getUserNameFromJwt(String token){
         Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(SECRET_KEY)
                 .build()
                 .parseClaimsJwt(token)
                 .getBody();
@@ -42,9 +43,9 @@ public class JwtGeneratorValidator {
     public boolean validate(String token){
      try{
          Jwts.parserBuilder()
-                 .setSigningKey(key)
+                 .setSigningKey(SECRET_KEY)
                  .build()
-                 .parseClaimsJwt(token);
+                 .parseClaimsJws(token);
          return true;
      } catch (Exception e){
          throw new AuthenticationCredentialsNotFoundException(e.getMessage());

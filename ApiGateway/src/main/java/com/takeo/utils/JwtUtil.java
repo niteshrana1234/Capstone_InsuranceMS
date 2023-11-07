@@ -5,21 +5,17 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
-import javax.naming.AuthenticationException;
 import java.security.Key;
 @Component
 public class JwtUtil {
-    private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+    private static final String SECRET_KEY = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
 
-    public boolean validateToken(String token) throws AuthenticationException {
-    try{    Jwts.parserBuilder()
-                .setSigningKey(key)
+    public boolean validateToken(String token) {
+        Jwts.parserBuilder()
+                .setSigningKey(SECRET_KEY)
                 .build()
-                .parseClaimsJwt(token);
+                .parseClaimsJws(token);
         return true;
-    }catch (Exception e){
-        throw new AuthenticationException(e.getMessage());
-    }
-    }
 
+    }
 }

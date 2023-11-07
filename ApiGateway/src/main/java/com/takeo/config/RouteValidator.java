@@ -1,10 +1,7 @@
 package com.takeo.config;
 
-import com.takeo.utils.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -14,8 +11,8 @@ public class RouteValidator {
 
     public static final List<String> openApiEndpoints = List.of(
             "/user/",
-            "/claim/",
-            "/policy/");
+            "/claim/");
+//            "/policy/");
 
 
     public Predicate<ServerHttpRequest> isSecured =

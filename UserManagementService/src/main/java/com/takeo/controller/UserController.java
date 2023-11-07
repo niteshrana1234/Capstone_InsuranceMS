@@ -81,4 +81,13 @@ public class UserController {
         }
     }
 
+    @GetMapping("/validate")
+    public String validate(@RequestParam("token") String token){
+        boolean check = generatorValidator.validate(token);
+        if(check){
+            return "Validated";
+        }
+        return "invalid";
+    }
+
 }
