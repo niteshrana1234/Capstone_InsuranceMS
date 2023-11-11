@@ -22,12 +22,11 @@ public class Policy {
     private String coverage;
     @Temporal(TemporalType.DATE)
     private Date startDate;
-    @JsonIgnore
     @Temporal(TemporalType.DATE)
     private Date expireDate;
     private int duration;
-    private int userId;
     @JsonIgnore
+    private int userId;
     private long premium;
 
     @PrePersist

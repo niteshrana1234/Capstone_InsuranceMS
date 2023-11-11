@@ -2,10 +2,12 @@ package com.takeo.service.impl;
 
 import com.takeo.entity.Policy;
 import com.takeo.payloads.PolicyDetails;
+import com.takeo.payloads.ResponsePolicy;
 import com.takeo.payloads.UpdatePolicyDTO;
 import com.takeo.payloads.UserDTO.UserEntity;
 import com.takeo.repo.PolicyRepo;
 import com.takeo.service.PolicyService;
+import com.takeo.utils.PolicyNumGenerator;
 import com.takeo.utils.PremiumCalculator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,13 @@ public class PolicyServiceImpl implements PolicyService {
         if (user != null && policy != null) {
             policy.setPremium(PremiumCalculator.totalPremium(policy));
             policy.setUserId(user.getId());
+            String policyNum = PolicyNumGenerator.generator();
+            Optional<Policy> optionalPolicy = policyRepo.findByPolicyNum(policyNum);
+            if(optionalPolicy.isEmpty()){
+                policy.setPolicyNum(policyNum);
+            }else{
+                policy.setPolicyNum(PolicyNumGenerator.generator());
+            }
             policyRepo.save(policy);
             message = "Success!!";
         }
@@ -75,10 +84,13 @@ public class PolicyServiceImpl implements PolicyService {
     }
 
     @Override
-    public Policy getPolicy(int policyId) {
+    public ResponsePolicy getPolicy(int policyId) {
         Optional<Policy> optional = policyRepo.findById(policyId);
         if (optional.isPresent()) {
-            return optional.get();
+            ResponsePolicy responsePolicy = new ResponsePolicy();
+            Policy policy = optional.get();
+            BeanUtils.copyProperties(policy,responsePolicy);
+            return responsePolicy;
         }
         return null;
     }

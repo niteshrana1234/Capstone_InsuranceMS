@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface PolicyRepo extends JpaRepository<Policy,Integer> {
    public Optional<Policy> findByUserId(int userId);
+   public Optional<Policy> findByPolicyNum(String number);
 }

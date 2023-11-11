@@ -3,6 +3,7 @@ package com.takeo.controller;
 
 import com.takeo.entity.Policy;
 import com.takeo.payloads.PolicyDetails;
+import com.takeo.payloads.ResponsePolicy;
 import com.takeo.payloads.UpdatePolicyDTO;
 import com.takeo.service.impl.PolicyServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +41,8 @@ public class PolicyController {
       return new ResponseEntity<>(policies,HttpStatus.OK);
     }
     @GetMapping("getPolicy/{id}")
-    public ResponseEntity<Policy> getPolicyById(@PathVariable("id") int policyId){
-    Policy policy = policyService.getPolicy(policyId);
+    public ResponseEntity<ResponsePolicy> getPolicyById(@PathVariable("id") int policyId){
+    ResponsePolicy policy = policyService.getPolicy(policyId);
     return new ResponseEntity<>(policy,HttpStatus.OK);
     }
 
