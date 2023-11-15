@@ -10,7 +10,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 
 
-
 @Component
 public class AuthenticationFilter extends AbstractGatewayFilterFactory<Object> {
 
@@ -24,6 +23,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Object> {
     public AuthenticationFilter() {
         super(Object.class);
     }
+
     @Override
     public GatewayFilter apply(Object config) {
         return ((exchange, chain) -> {
@@ -42,8 +42,18 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Object> {
 //                    template.getForObject("http://IDENTITY-SERVICE//validate?token" + authHeader, String.class);
                     jwtUtil.validateToken(authHeader);
 
+
+                    String role = jwtUtil.getClaimFromToken(authHeader, "role");
+                    String path = exchange.getRequest().getPath().value();
+
+                    if (path.startsWith("/admin/api") && !role.contains("ROLE_ADMIN")) {
+                        throw new RuntimeException("You don't have enough permissions to access this resource");
+                    } else if (path.startsWith("/user/api") && !role.contains("ROLE_USER")) {
+                        throw new RuntimeException("You don't have enough permissions to access this resource");
+                    }
+
                 } catch (Exception e) {
-                   LOGGER.error(e.getMessage());
+                    LOGGER.error(e.getMessage());
                     throw new RuntimeException("un authorized access to application");
                 }
             }

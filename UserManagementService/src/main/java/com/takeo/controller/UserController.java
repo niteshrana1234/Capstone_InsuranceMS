@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("user")
+@RequestMapping("user/api/mgmt")
 public class UserController {
 
     @Autowired
@@ -57,14 +57,6 @@ public class UserController {
             return new ResponseEntity<>(user, HttpStatus.OK);
         }
         return new ResponseEntity<>(user,HttpStatus.BAD_REQUEST);
-    }
-
-    @PutMapping("/updateUser")
-    public ResponseEntity<Map<String, String>> updateUser(@RequestParam("id") int id, @RequestBody UpdateUserDTO userDTO) {
-        String update = userService.updateUserDetails(id, userDTO);
-        Map<String, String> response = new HashMap<>();
-        response.put("message", update);
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/login")

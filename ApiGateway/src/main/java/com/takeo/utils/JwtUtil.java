@@ -1,5 +1,6 @@
 package com.takeo.utils;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -17,5 +18,17 @@ public class JwtUtil {
                 .parseClaimsJws(token);
         return true;
 
+    }
+    public String getClaimFromToken(String token, String claimKey) {
+        final Claims claims = getAllClaimsFromToken(token);
+        return claims.get(claimKey, String.class);
+    }
+
+    private Claims getAllClaimsFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(SECRET_KEY)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

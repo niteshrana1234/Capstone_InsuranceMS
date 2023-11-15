@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("policy")
-public class PolicyController {
+@RequestMapping("admin/api/policy")
+public class AdminPolicyController {
 
     @Autowired
     PolicyServiceImpl policyService;

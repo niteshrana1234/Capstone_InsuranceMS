@@ -1,11 +1,13 @@
 package com.takeo.service.impl;
 
+import com.takeo.entity.Address;
 import com.takeo.entity.Roles;
 import com.takeo.entity.UserEntity;
 import com.takeo.payloads.LoginDTO;
 import com.takeo.payloads.UpdateUserDTO;
 import com.takeo.payloads.UserDTO;
 import com.takeo.payloads.UserPrincipal;
+import com.takeo.repo.AddressRepo;
 import com.takeo.repo.RolesRepo;
 import com.takeo.repo.UserRepo;
 import com.takeo.service.UserService;
@@ -35,6 +37,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     UserRepo userRepo;
     @Autowired
     RolesRepo rolesRepo;
+    @Autowired
+    AddressRepo addressRepo;
     @Autowired
     RestTemplate restTemplate;
 //    @Autowired
@@ -121,27 +125,28 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public String updateUserDetails(int id, UpdateUserDTO userDTO) {
         Optional<UserEntity> usr = userRepo.findById(id);
-        String message = "Failed to update user details";
-        if (usr.isPresent()) {
-            message = "User updated successfully";
-            UserEntity user = usr.get();
-            if (!user.getFullName().equals(userDTO.getFullName())) {
-                user.setFullName(userDTO.getFullName());
-            }
-            if (userDTO.getAddress() != null && user.getAddress() != null) {
-                user.setAddress(userDTO.getAddress());
-            }
+        Optional<UserEntity> email = userRepo.findByEmail(userDTO.getEmail());
+        String message = "";
 
-            if (!user.getPhoneNum().equals(userDTO.getPhoneNum())) {
-                user.setPhoneNum(userDTO.getPhoneNum());
-            }
-            if (!user.getEmail().equals(userDTO.getEmail())) {
+        if (usr.isPresent()) {
+            UserEntity user = usr.get();
+
+            if (email.isPresent()) {
+                if (user.getEmail().equals(userDTO.getEmail())) {
+                    updateUserInfo(user, userDTO);
+                    message = "User update successful";
+                } else {
+                    message = "Email already in use";
+                }
+            } else if (email.isEmpty()) {
                 String otp = EmailSender.sendOtp(userDTO.getEmail()); // Assume verification code is send to new email
                 if (otp != null) {
                     user.setEmail(userDTO.getEmail());
                     user.setOtp(otp);
                     message = "Otp sent to new email. Please verify OTP";
                 }
+                updateUserInfo(user, userDTO);
+
             }
             user.setUpdatedDate(new Date());
             userRepo.save(user);
@@ -159,5 +164,21 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             return new UserPrincipal(user);
         }
         throw new UsernameNotFoundException("User doesn't exist with given email");
+    }
+
+    protected void updateUserInfo(UserEntity user, UpdateUserDTO userDTO) {
+        if (!userDTO.getFullName().equals(user.getFullName())) {
+            user.setFullName(userDTO.getFullName());
+        }
+        if (userDTO.getAddress() != null && user.getAddress() != null) {
+            Address oldAddress = user.getAddress();
+            Address newAddress = userDTO.getAddress();
+            user.setAddress(newAddress);
+            addressRepo.delete(oldAddress);
+        }
+
+        if (!user.getPhoneNum().equals(userDTO.getPhoneNum())) {
+            user.setPhoneNum(userDTO.getPhoneNum());
+        }
     }
 }

@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("claim")
-public class ClaimController {
+@RequestMapping("admin/api/claim")
+public class AdminClaimController {
     @Autowired
     ClaimServiceImpl claimService;
     @PostMapping("/create-claim")

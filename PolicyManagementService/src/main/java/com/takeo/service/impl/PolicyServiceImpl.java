@@ -27,7 +27,7 @@ public class PolicyServiceImpl implements PolicyService {
     @Override
     public String createPolicy(int userId, Policy policy) {
         String message = "Error";
-        UserEntity user = restTemplate.getForObject("http://10.0.0.206:1111/user/getUser?id=" + userId, UserEntity.class);
+        UserEntity user = restTemplate.getForObject("http://10.0.0.206:1111/user/api/mgmt/getUser?id=" + userId, UserEntity.class);
         if (user != null && policy != null) {
             policy.setPremium(PremiumCalculator.totalPremium(policy));
             policy.setUserId(user.getId());
@@ -51,7 +51,7 @@ public class PolicyServiceImpl implements PolicyService {
     @Override
     public String updatePolicy(int userId, UpdatePolicyDTO updatePolicyDTO) {
         String message = "Policy not found with given id";
-        UserEntity user = restTemplate.getForObject("http://10.0.0.206:1111/user/getUser?id=" + userId, UserEntity.class);
+        UserEntity user = restTemplate.getForObject("http://10.0.0.206:1111/user/api/mgmt/getUser?id=" + userId, UserEntity.class);
         if (user != null) {
             Optional<Policy> policy1 = policyRepo.findByUserId(user.getId());
             if (policy1.isPresent()) {
@@ -68,7 +68,7 @@ public class PolicyServiceImpl implements PolicyService {
 
     @Override
     public List<Policy> getPolicyByUserId(int userId) {
-        UserEntity user = restTemplate.getForObject("http://10.0.0.206:1111/user/getUser?id=" + userId, UserEntity.class);
+        UserEntity user = restTemplate.getForObject("http://10.0.0.206:1111/user/api/mgmt/getUser?id=" + userId, UserEntity.class);
         if (user != null) {
             List<Policy> policyList = policyRepo.findAll();
             List<Policy> userAllPolicy = new ArrayList<>();
@@ -103,7 +103,7 @@ public class PolicyServiceImpl implements PolicyService {
         Set<Integer> processedId = new HashSet<>();
         for (Policy policy : policyRepo.findAll()) {
             int userId = policy.getUserId();
-            UserEntity user = restTemplate.getForObject("http://10.0.0.206:1111/user/getUser?id=" + userId, UserEntity.class);
+            UserEntity user = restTemplate.getForObject("http://10.0.0.206:1111/user/api/mgmt/getUser?id=" + userId, UserEntity.class);
             if (!processedId.contains(userId) && user != null) {
                 PolicyDetails details = new PolicyDetails();
                 List<Policy> userPolicy = new ArrayList<>();
